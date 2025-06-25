@@ -11,17 +11,14 @@ typedef struct rect
     int16_t x, y, width, height;
 } rect_t;
 
-typedef struct entity
+typedef struct player
 {
     rect_t rect;
-} entity_t;
-
-typedef struct render_entity
-{
-    rect_t rect;
-    bitmap_t bitmap;
-} render_entity_t;
+    ALLEGRO_BITMAP* bitmaps[2];
+    uint8_t current_bitmap;
+} player_t;
 
 bool hits_rect(rect_t a, rect_t b);
+void animate_player(player_t* player);
 
 #endif

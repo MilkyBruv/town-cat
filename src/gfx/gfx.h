@@ -6,6 +6,4 @@
 #include <allegro5/allegro_font.h>
 #include "./../entity/entity.h"
 
-void draw_entity(render_entity_t entity);
-
 #endif
