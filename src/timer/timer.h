@@ -6,22 +6,22 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-enum timer_type
+typedef enum timer_type
 {
     REPEAT, NO_REPEAT
-};
+} timer_type_t;
 
 typedef struct timer
 {
     double elapsed, wait;
-    uint8_t type;
+    timer_type_t type;
     bool done;
-} timer_t;
+} ttimer_t;
 
-timer_t* create_timer(double wait, uint8_t type);
-void start_timer(timer_t* timer);
-bool tick_timer(timer_t* timer, double delta);
-void stop_timer(timer_t* timer);
-void kill_timer(timer_t* timer);
+ttimer_t* create_timer(double wait, timer_type_t type);
+void start_timer(ttimer_t* timer);
+bool tick_timer(ttimer_t* timer, double delta);
+void stop_timer(ttimer_t* timer);
+void kill_timer(ttimer_t* timer);
 
 #endif

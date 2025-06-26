@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 
-timer_t* create_timer(double wait, uint8_t type)
+ttimer_t* create_timer(double wait, timer_type_t type)
 {
-    timer_t* timer = malloc(sizeof(timer_t));
+    ttimer_t* timer = malloc(sizeof(ttimer_t));
     timer->wait = wait;
     timer->type = type;
     timer->done = false;
@@ -12,13 +12,13 @@ timer_t* create_timer(double wait, uint8_t type)
     return timer;
 }
 
-void start_timer(timer_t* timer)
+void start_timer(ttimer_t* timer)
 {
     timer->done = false;
     timer->elapsed = 0.0;
 }
 
-bool tick_timer(timer_t* timer, double delta)
+bool tick_timer(ttimer_t* timer, double delta)
 {
     if (!timer) { return false; } // If timer is null
     if (timer->type == NO_REPEAT && timer->done) { return false; }
@@ -40,13 +40,13 @@ bool tick_timer(timer_t* timer, double delta)
     return timer->done;
 }
 
-void stop_timer(timer_t* timer)
+void stop_timer(ttimer_t* timer)
 {
     timer->done = true;
     timer->elapsed = 0.0;
 }
 
-void kill_timer(timer_t* timer)
+void kill_timer(ttimer_t* timer)
 {
     free(timer);
     timer = NULL;

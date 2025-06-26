@@ -1,24 +1,50 @@
 #include "world.h"
+#include <stdio.h>
 
-void init_home_world(home_world_t* home)
+world_t* create_world(world_id_t id, const char* map, const char* collision_map)
 {
-    home->bitmap = al_load_bitmap("./res/world.png");
+    world_t* world;
+    world->id = id;
+    world->bitmap = al_load_bitmap(map);
 
     // Loop through each pixel in world_collisions.png at intervals of 8
     // and add to home_world_t.bounds for each RED pixel
-    ALLEGRO_BITMAP* col_map = al_load_bitmap("./res/world_collisions.png");
+    ALLEGRO_BITMAP* col_map = al_load_bitmap(collision_map);
 
-    size_t bounds_index = 0;
+    uint8_t total_bounds = 1;
     for (size_t y = 0; y < al_get_bitmap_height(col_map); y += 8)
     {
         for (size_t x = 0; x < al_get_bitmap_width(col_map); x += 8)
         {
-            if (al_get_pixel(col_map, x, y).r == 255)
+            if (al_get_pixel(col_map, x, y).r == 1.0)
             {
-                home->bounds[bounds_index] = (rect_t) {x, y, 8, 8};
+                total_bounds++;
+            }
+        }
+    }
+    world->bounds = malloc(total_bounds * sizeof(rect_t));
+    world->total_bounds = total_bounds;
+
+    uint8_t bounds_index = 0;
+    for (size_t y = 0; y < al_get_bitmap_height(col_map); y += 8)
+    {
+        for (size_t x = 0; x < al_get_bitmap_width(col_map); x += 8)
+        {
+            if (al_get_pixel(col_map, x, y).r == 1.0)
+            {
+                world->bounds[bounds_index] = (rect_t) {x, y, 8, 8};
+                bounds_index++;
             }
         }
     }
 
     al_destroy_bitmap(col_map);
+
+    return world;
+}
+
+void destroy_world(world_t* world)
+{
+    al_destroy_bitmap(world->bitmap);
+    free(world->bounds);
 }

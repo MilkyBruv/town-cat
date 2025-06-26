@@ -1,6 +1,8 @@
 {
     "files.associations": {
+        ".tsx": "xml",
         "ios": "c",
-        "xiosbase": "c"
+        "xiosbase": "c",
+        "world.h": "c"
     }
 }
