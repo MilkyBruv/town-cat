@@ -19,7 +19,7 @@ typedef struct
     uint8_t total_bounds;
 } world_t;
 
-world_t* create_world(world_id_t id, const char* map, const char* collision_map);
+world_t create_world(world_id_t id, const char* map, const char* collision_map);
 void destroy_world(world_t* world);
 
 #endif

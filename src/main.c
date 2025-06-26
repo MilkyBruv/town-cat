@@ -50,9 +50,9 @@ int main(int argc, char const *argv[])
     start_timer(player_anim_timer);
 
     // World stuff
-    world_t* main_world = create_world(MAIN, "./res/world.png", "./res/world_collisions.png");
-    world_t* market_world = create_world(MARKET, "./res/market.png", "./res/market_collisions.png");
-    world_t* worlds[2] = {main_world, market_world};
+    world_t main_world = create_world(MAIN, "./res/world.png", "./res/world_collisions.png");
+    world_t market_world = create_world(MARKET, "./res/market.png", "./res/market_collisions.png");
+    world_t worlds[2] = {main_world, market_world};
     uint8_t current_world = 0;
     printf("%d\n", current_world);
 
@@ -68,6 +68,18 @@ int main(int argc, char const *argv[])
     smoke.anim = create_animation(smoke_bitmaps, 5);
     ttimer_t* smoke_timer = create_timer(0.3, REPEAT);
     start_timer(smoke_timer);
+
+    // Water animation
+    water_t water;
+    ALLEGRO_BITMAP* water_bitmap = al_load_bitmap("./res/water.png");
+    ALLEGRO_BITMAP* water_bitmaps[2];
+    for (size_t i = 0; i < 2; i++)
+    {
+        water_bitmaps[i] = al_create_sub_bitmap(water_bitmap, 0, i * 48, 56, 48);
+    }
+    water.anim = create_animation(water_bitmaps, 2);
+    ttimer_t* water_timer = create_timer(1, REPEAT);
+    start_timer(water_timer);
 
     al_start_timer(timer);
     bool running = true;
@@ -112,6 +124,12 @@ int main(int argc, char const *argv[])
                 smoke_timer->done = false;
             }
 
+            if (tick_timer(water_timer, fps))
+            {
+                animate(&water.anim);
+                water_timer->done = false;
+            }
+
             if (player->rect.x == 152 && current_world == 0)
             {
                 current_world = 1;
@@ -124,25 +142,25 @@ int main(int argc, char const *argv[])
             }
 
             up = true; down = true; left = true; right = true;
-            for (uint8_t i = 0; i < worlds[current_world]->total_bounds; i++)
+            for (uint8_t i = 0; i < worlds[current_world].total_bounds; i++)
             {
-                if (!is_rect_in_range(player->rect, worlds[current_world]->bounds[i])) { continue; }
-                if (hits_rect((rect_t) {player->rect.x, player->rect.y - 8, player->rect.width, player->rect.height}, worlds[current_world]->bounds[i]))
+                if (!is_rect_in_range(player->rect, worlds[current_world].bounds[i])) { continue; }
+                if (hits_rect((rect_t) {player->rect.x, player->rect.y - 8, player->rect.width, player->rect.height}, worlds[current_world].bounds[i]))
                 {
                     up = false;
                 }
 
-                if (hits_rect((rect_t) {player->rect.x, player->rect.y + 8, player->rect.width, player->rect.height}, worlds[current_world]->bounds[i]))
+                if (hits_rect((rect_t) {player->rect.x, player->rect.y + 8, player->rect.width, player->rect.height}, worlds[current_world].bounds[i]))
                 {
                     down = false;
                 }
 
-                if (hits_rect((rect_t) {player->rect.x - 8, player->rect.y, player->rect.width, player->rect.height}, worlds[current_world]->bounds[i]))
+                if (hits_rect((rect_t) {player->rect.x - 8, player->rect.y, player->rect.width, player->rect.height}, worlds[current_world].bounds[i]))
                 {
                     left = false;
                 }
 
-                if (hits_rect((rect_t) {player->rect.x + 8, player->rect.y, player->rect.width, player->rect.height}, worlds[current_world]->bounds[i]))
+                if (hits_rect((rect_t) {player->rect.x + 8, player->rect.y, player->rect.width, player->rect.height}, worlds[current_world].bounds[i]))
                 {
                     right = false;
                 }
@@ -157,10 +175,15 @@ int main(int argc, char const *argv[])
             al_set_target_bitmap(fb);
             al_clear_to_color(al_map_rgb(0, 0, 255));
 
-            al_draw_bitmap(worlds[current_world]->bitmap, 0, 0, 0);
+            al_draw_bitmap(worlds[current_world].bitmap, 0, 0, 0);
             al_draw_bitmap(get_current_animation_frame(player->anim), player->rect.x, player->rect.y, 0);
-            al_draw_bitmap(get_current_animation_frame(smoke.anim), 48, 20, 0);
-            al_draw_bitmap(chimeny_bitmap, 48, 24, 0);
+            if (worlds[current_world].id == MAIN)
+            {
+                al_draw_bitmap(get_current_animation_frame(smoke.anim), 48, 20, 0);
+                al_draw_bitmap(chimeny_bitmap, 48, 24, 0);
+                al_draw_bitmap(get_current_animation_frame(water.anim), 72, 72, 0);
+            }
+
 
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -184,13 +207,15 @@ int main(int argc, char const *argv[])
     kill_timer(player_anim_timer);
     stop_timer(smoke_timer);
     kill_timer(smoke_timer);
+    stop_timer(water_timer);
+    kill_timer(water_timer);
     destroy_animation(&player->anim);
     destroy_animation(&smoke.anim);
     al_destroy_bitmap(player_bitmap);
     al_destroy_bitmap(smoke_bitmap);
     al_destroy_bitmap(chimeny_bitmap);
-    destroy_world(main_world);
-    destroy_world(market_world);
+    destroy_world(&main_world);
+    destroy_world(&market_world);
 	al_unregister_event_source(eventQueue, al_get_timer_event_source(timer));
 	al_unregister_event_source(eventQueue, al_get_display_event_source(display));
 	al_unregister_event_source(eventQueue, al_get_keyboard_event_source());

@@ -29,6 +29,12 @@ typedef struct
     animation_t anim;
 } player_t;
 
+typedef struct
+{
+    rect_t rect;
+    animation_t anim;
+} water_t;
+
 bool hits_rect(rect_t a, rect_t b);
 bool is_rect_in_range(rect_t a, rect_t b);
 void animate(animation_t* anim);

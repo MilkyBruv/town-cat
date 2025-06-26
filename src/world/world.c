@@ -1,11 +1,11 @@
 #include "world.h"
 #include <stdio.h>
 
-world_t* create_world(world_id_t id, const char* map, const char* collision_map)
+world_t create_world(world_id_t id, const char* map, const char* collision_map)
 {
-    world_t* world;
-    world->id = id;
-    world->bitmap = al_load_bitmap(map);
+    world_t world;
+    world.id = id;
+    world.bitmap = al_load_bitmap(map);
 
     // Loop through each pixel in world_collisions.png at intervals of 8
     // and add to home_world_t.bounds for each RED pixel
@@ -22,8 +22,8 @@ world_t* create_world(world_id_t id, const char* map, const char* collision_map)
             }
         }
     }
-    world->bounds = malloc(total_bounds * sizeof(rect_t));
-    world->total_bounds = total_bounds;
+    world.bounds = malloc(total_bounds * sizeof(rect_t));
+    world.total_bounds = total_bounds;
 
     uint8_t bounds_index = 0;
     for (size_t y = 0; y < al_get_bitmap_height(col_map); y += 8)
@@ -32,7 +32,7 @@ world_t* create_world(world_id_t id, const char* map, const char* collision_map)
         {
             if (al_get_pixel(col_map, x, y).r == 1.0)
             {
-                world->bounds[bounds_index] = (rect_t) {x, y, 8, 8};
+                world.bounds[bounds_index] = (rect_t) {x, y, 8, 8};
                 bounds_index++;
             }
         }
