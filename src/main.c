@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
     al_init();
     al_init_image_addon();
     // al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
-    al_set_new_display_flags(ALLEGRO_RESIZABLE);
+    al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_RESIZABLE);
 
     ALLEGRO_DISPLAY* display = al_create_display(800, 800);
     ALLEGRO_EVENT_QUEUE* eventQueue = al_create_event_queue();
@@ -81,10 +81,21 @@ int main(int argc, char const *argv[])
     ttimer_t* water_timer = create_timer(1, REPEAT);
     start_timer(water_timer);
 
-    al_start_timer(timer);
-    bool running = true;
-    bool redraw = false;
+    // Shader stuff
+    ALLEGRO_SHADER* shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+    al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, "./res/shader/vertex.glsl");
+    // al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_VERTEX_SHADER));
+    puts(al_get_shader_log(shader));
+    al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "./res/shader/fragment.glsl");
+    // al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_PIXEL_SHADER));
+    puts(al_get_shader_log(shader));
+    al_build_shader(shader);
+    puts(al_get_shader_log(shader));
 
+    al_start_timer(timer);
+    bool redraw = false;
+    bool running = true;
+    
     while (running)
     {
         ALLEGRO_EVENT event;
@@ -174,7 +185,7 @@ int main(int argc, char const *argv[])
             // render
             al_set_target_bitmap(fb);
             al_clear_to_color(al_map_rgb(0, 0, 255));
-
+            
             al_draw_bitmap(worlds[current_world].bitmap, 0, 0, 0);
             al_draw_bitmap(get_current_animation_frame(player->anim), player->rect.x, player->rect.y, 0);
             if (worlds[current_world].id == MAIN)
@@ -183,10 +194,11 @@ int main(int argc, char const *argv[])
                 al_draw_bitmap(chimeny_bitmap, 48, 24, 0);
                 al_draw_bitmap(get_current_animation_frame(water.anim), 72, 72, 0);
             }
-
-
+            
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_use_shader(shader);
+            al_set_shader_float("time", (float) al_get_timer_count(timer) / 60.0f);
             fb_scale = (float) min(
                 (float) ((float) al_get_display_width(display) / (float) fb_width),
                 (float) ((float) al_get_display_height(display) / (float) fb_height)
@@ -197,12 +209,15 @@ int main(int argc, char const *argv[])
                 (al_get_display_width(display) / 2) - (fb_scaled_width / 2),
                 (al_get_display_height(display) / 2) - (fb_scaled_height / 2),
                 fb_scaled_width, fb_scaled_height, 0);
-
+                
+            al_use_shader(NULL);
             al_flip_display();
             redraw = false;
         }
     }
     
+    al_use_shader(NULL);
+    al_destroy_shader(shader);
     stop_timer(player_anim_timer);
     kill_timer(player_anim_timer);
     stop_timer(smoke_timer);
