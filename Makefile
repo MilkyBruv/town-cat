@@ -5,5 +5,5 @@ linux:
 	./main
 
 win:
-	clang $(FILES) -o main -lallegro -lallegro_image
+	clang -g $(FILES) -o main -lallegro -lallegro_image
 	./main.exe

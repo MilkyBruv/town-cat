@@ -6,6 +6,7 @@
 #include "./entity/entity.h"
 #include "./timer/timer.h"
 #include "./world/world.h"
+#include "./text/text.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -14,13 +15,16 @@ int main(int argc, char const *argv[])
     al_init();
     al_init_image_addon();
     // al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
-    al_set_new_display_flags(ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_RESIZABLE);
+    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_RESIZABLE);
 
     ALLEGRO_DISPLAY* display = al_create_display(800, 800);
     ALLEGRO_EVENT_QUEUE* eventQueue = al_create_event_queue();
     double fps = 1.0 / 60.0;
     ALLEGRO_TIMER* timer = al_create_timer(fps);
     al_set_window_title(display, "Cool thing!!!");
+
+    ALLEGRO_BITMAP* text_bitmap = al_load_bitmap("./res/text.png");
+    init_text(text_bitmap);
 
     al_install_keyboard();
     al_register_event_source(eventQueue, al_get_keyboard_event_source());
@@ -84,13 +88,11 @@ int main(int argc, char const *argv[])
     // Shader stuff
     ALLEGRO_SHADER* shader = al_create_shader(ALLEGRO_SHADER_GLSL);
     al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, "./res/shader/vertex.glsl");
-    // al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_VERTEX_SHADER));
-    puts(al_get_shader_log(shader));
     al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "./res/shader/fragment.glsl");
-    // al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_PIXEL_SHADER));
-    puts(al_get_shader_log(shader));
     al_build_shader(shader);
-    puts(al_get_shader_log(shader));
+
+    // Text
+    text_t* t = create_text("faggot!", 128, 128);
 
     al_start_timer(timer);
     bool redraw = false;
@@ -194,6 +196,11 @@ int main(int argc, char const *argv[])
                 al_draw_bitmap(chimeny_bitmap, 48, 24, 0);
                 al_draw_bitmap(get_current_animation_frame(water.anim), 72, 72, 0);
             }
+            else
+            {
+                al_draw_bitmap(t->bitmap, t->rect.x, t->rect.y, 0);
+                puts("DRAWING");
+            }
             
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -218,19 +225,28 @@ int main(int argc, char const *argv[])
     
     al_use_shader(NULL);
     al_destroy_shader(shader);
+
     stop_timer(player_anim_timer);
     kill_timer(player_anim_timer);
     stop_timer(smoke_timer);
     kill_timer(smoke_timer);
     stop_timer(water_timer);
     kill_timer(water_timer);
+
+    destroy_text();
+    al_destroy_bitmap(text_bitmap);
+
     destroy_animation(&player->anim);
     destroy_animation(&smoke.anim);
+    destroy_animation(&water.anim);
     al_destroy_bitmap(player_bitmap);
     al_destroy_bitmap(smoke_bitmap);
     al_destroy_bitmap(chimeny_bitmap);
+    al_destroy_bitmap(water_bitmap);
+
     destroy_world(&main_world);
     destroy_world(&market_world);
+
 	al_unregister_event_source(eventQueue, al_get_timer_event_source(timer));
 	al_unregister_event_source(eventQueue, al_get_display_event_source(display));
 	al_unregister_event_source(eventQueue, al_get_keyboard_event_source());

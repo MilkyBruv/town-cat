@@ -3,6 +3,8 @@
         ".tsx": "xml",
         "ios": "c",
         "xiosbase": "c",
-        "world.h": "c"
+        "world.h": "c",
+        "string.h": "c",
+        "entity.h": "c"
     }
 }
