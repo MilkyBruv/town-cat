@@ -91,8 +91,10 @@ int main(int argc, char const *argv[])
     al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "./res/shader/fragment.glsl");
     al_build_shader(shader);
 
-    // Text
-    text_t* t = create_text("faggot!", 128, 128);
+    // Text stuff
+    ttimer_t* text_timer = create_timer(0.5, REPEAT);
+    char* t = "hello";
+    start_timer(text_timer);
 
     al_start_timer(timer);
     bool redraw = false;
@@ -198,8 +200,10 @@ int main(int argc, char const *argv[])
             }
             else
             {
-                al_draw_bitmap(t->bitmap, t->rect.x, t->rect.y, 0);
-                puts("DRAWING");
+                if (player->rect.x == 40 && player->rect.y == 56)
+                {
+                    draw_text("hello", 43, 27);
+                }
             }
             
             al_set_target_bitmap(al_get_backbuffer(display));

@@ -12,24 +12,13 @@ void init_text(ALLEGRO_BITMAP* text_bitmap)
     }
 }
 
-text_t* create_text(char *text, uint8_t cx, uint16_t y)
+void draw_text(char* text, uint8_t cx, uint8_t y)
 {
-    text_t* new_text;
-    new_text->text = text;
-    new_text->bitmap = al_create_bitmap(8 * strlen(text), 8);
-    new_text->cx = cx;
-    new_text->rect = (rect_t) {cx - (al_get_bitmap_width(new_text->bitmap) / 2), y, 8 * strlen(text), 8};
-
-    al_set_target_bitmap(new_text->bitmap);
-
-    for (size_t i = 0; i < strlen(text); i++)
+    uint8_t width = strlen(text);
+    for (size_t i = 0; i < width; i++)
     {
-        al_draw_bitmap(char_bitmaps[(uint8_t) text[i]], i * 8, 0, 0);
+        al_draw_bitmap(char_bitmaps[(uint8_t) text[i]], (cx - ((width * 8) / 2)) + (i * 8), y, 0);
     }
-    
-    al_set_target_bitmap(al_get_backbuffer(al_get_current_display()));
-
-    return new_text;
 }
 
 void destroy_text()
