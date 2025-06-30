@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
+#include <math.h>
 #include "./macros.h"
 #include "./entity/entity.h"
 #include "./timer/timer.h"
@@ -14,6 +16,7 @@ int main(int argc, char const *argv[])
 {
     al_init();
     al_init_image_addon();
+    al_init_primitives_addon();
     // al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
     al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_PROGRAMMABLE_PIPELINE | ALLEGRO_RESIZABLE);
 
@@ -27,7 +30,9 @@ int main(int argc, char const *argv[])
     init_text(text_bitmap);
 
     al_install_keyboard();
+    al_install_mouse();
     al_register_event_source(eventQueue, al_get_keyboard_event_source());
+    al_register_event_source(eventQueue, al_get_mouse_event_source());
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
@@ -52,6 +57,7 @@ int main(int argc, char const *argv[])
     bool up = true, down = true, left = true, right = true;
     ttimer_t* player_anim_timer = create_timer(0.3, REPEAT);
     start_timer(player_anim_timer);
+    ALLEGRO_BITMAP* rod_bitmap = al_load_bitmap("./res/rod.png");
 
     // World stuff
     world_t main_world = create_world(MAIN, "./res/world.png", "./res/world_collisions.png");
@@ -102,6 +108,7 @@ int main(int argc, char const *argv[])
     
     while (running)
     {
+        ALLEGRO_MOUSE_STATE mouse_state;
         ALLEGRO_EVENT event;
         al_wait_for_event(eventQueue, &event);
 
@@ -126,6 +133,9 @@ int main(int argc, char const *argv[])
 
         if (event.type == ALLEGRO_EVENT_TIMER)
         {
+            // get mouse pos
+            al_get_mouse_state(&mouse_state);
+
             // update
             if (tick_timer(player_anim_timer, fps))
             {
@@ -192,11 +202,29 @@ int main(int argc, char const *argv[])
             
             al_draw_bitmap(worlds[current_world].bitmap, 0, 0, 0);
             al_draw_bitmap(get_current_animation_frame(player->anim), player->rect.x, player->rect.y, 0);
-            if (worlds[current_world].id == MAIN)
+            if (current_world == MAIN)
             {
                 al_draw_bitmap(get_current_animation_frame(smoke.anim), 48, 20, 0);
                 al_draw_bitmap(chimeny_bitmap, 48, 24, 0);
                 al_draw_bitmap(get_current_animation_frame(water.anim), 72, 72, 0);
+
+                if (player->rect.x == 96 && player->rect.y == 72)
+                {
+                    al_draw_bitmap(rod_bitmap, player->rect.x, player->rect.y, 0);
+                    al_draw_line(
+                        player->rect.x + 3, player->rect.y + 3,
+                        ((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width,
+                        ((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height,
+                        al_map_rgb(255, 255, 255), 0
+                    );
+                    al_draw_arc(
+                        player->rect.x + 3 + fabsf(((player->rect.x + 3) - (((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width))), // center x
+                        player->rect.y + 3 + fabsf(((player->rect.y + 3) - (((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height))), // center y
+                        5, // radius
+                        0, // start rads
+                        M_PI, // end rads
+                        al_map_rgb(255, 0, 0), 2);
+                }
             }
             else
             {
@@ -208,7 +236,7 @@ int main(int argc, char const *argv[])
             
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_use_shader(shader);
+            // al_use_shader(shader);
             al_set_shader_float("time", (float) al_get_timer_count(timer) / 60.0f);
             fb_scale = (float) min(
                 (float) ((float) al_get_display_width(display) / (float) fb_width),
@@ -239,6 +267,7 @@ int main(int argc, char const *argv[])
 
     destroy_text();
     al_destroy_bitmap(text_bitmap);
+    al_destroy_bitmap(rod_bitmap);
 
     destroy_animation(&player->anim);
     destroy_animation(&smoke.anim);
@@ -255,7 +284,9 @@ int main(int argc, char const *argv[])
 	al_unregister_event_source(eventQueue, al_get_display_event_source(display));
 	al_unregister_event_source(eventQueue, al_get_keyboard_event_source());
     al_uninstall_keyboard();
+    al_uninstall_mouse();
     al_shutdown_image_addon();
+    al_shutdown_primitives_addon();
     al_destroy_display(display);
     al_destroy_timer(timer);
     al_destroy_event_queue(eventQueue);

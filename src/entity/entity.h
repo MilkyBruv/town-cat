@@ -7,34 +7,40 @@
 #include <allegro5/allegro_primitives.h>
 #include "./../macros.h"
 
-typedef struct
+typedef struct rect
 {
     int16_t x, y, width, height;
 } rect_t;
 
-typedef struct
+typedef struct animation
 {
     ALLEGRO_BITMAP** bitmaps;
     uint8_t current_frame, total_frames;
 } animation_t;
 
-typedef struct
+typedef struct smoke
 {
     rect_t rect;
     animation_t anim;
 } smoke_t;
 
-typedef struct
+typedef struct player
 {
     rect_t rect;
     animation_t anim;
 } player_t;
 
-typedef struct
+typedef struct water
 {
     rect_t rect;
     animation_t anim;
 } water_t;
+
+typedef struct rod
+{
+    rect_t rect;
+    ALLEGRO_BITMAP* bitmap;
+} rod_t;
 
 bool hits_rect(rect_t a, rect_t b);
 bool is_rect_in_range(rect_t a, rect_t b);

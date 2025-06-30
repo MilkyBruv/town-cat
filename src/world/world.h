@@ -6,12 +6,12 @@
 
 #include "./../entity/entity.h"
 
-typedef enum
+typedef enum world_id
 {
     MAIN, HOUSE, MARKET
 } world_id_t;
 
-typedef struct
+typedef struct world
 {
     world_id_t id;
     rect_t* bounds;
