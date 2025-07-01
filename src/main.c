@@ -4,6 +4,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
+#include <usrtypes.h>
 #include "./macros.h"
 #include "./entity/entity.h"
 #include "./timer/timer.h"
@@ -22,7 +23,7 @@ int main(int argc, char const *argv[])
 
     ALLEGRO_DISPLAY* display = al_create_display(800, 800);
     ALLEGRO_EVENT_QUEUE* eventQueue = al_create_event_queue();
-    double fps = 1.0 / 60.0;
+    d64 fps = 1.0 / 60.0;
     ALLEGRO_TIMER* timer = al_create_timer(fps);
     al_set_window_title(display, "Cool thing!!!");
 
@@ -37,17 +38,19 @@ int main(int argc, char const *argv[])
 	al_register_event_source(eventQueue, al_get_timer_event_source(timer));
 
     // Framebuffer
-    const int fb_width = 160;
-    const int fb_height = 160;
+    const u8 fb_width = 160;
+    const u8 fb_height = 160;
     ALLEGRO_BITMAP* fb = al_create_bitmap(fb_width, fb_height);
     float fb_scale = 1.0f;
-    int fb_scaled_width = 160;
-    int fb_scaled_height = 160;
+    u16 fb_scaled_width = 160;
+    u16 fb_scaled_height = 160;
+    u8 fb_mouse_x = 0;
+    u8 fb_mouse_y = 0;
 
     // Player stuff
     player_t* player = malloc(sizeof(player_t));
-    player->rect.x = 16;
-    player->rect.y = 16;
+    player->rect.x = 96;
+    player->rect.y = 72;
     player->rect.width = 8;
     player->rect.height = 8;
     ALLEGRO_BITMAP* player_bitmap = al_load_bitmap("./res/cat.png");
@@ -58,6 +61,13 @@ int main(int argc, char const *argv[])
     ttimer_t* player_anim_timer = create_timer(0.3, REPEAT);
     start_timer(player_anim_timer);
     ALLEGRO_BITMAP* rod_bitmap = al_load_bitmap("./res/rod.png");
+    u8 rod_x = 0;
+    u8 rod_y = 0;
+    s16 rod_len_x = 0;
+    s16 rod_len_y = 0;
+    s16 rod_len = 0;
+    f32 rod_angle_start = 0.0f;
+    f32 rod_angle_end = 0.0f;
 
     // World stuff
     world_t main_world = create_world(MAIN, "./res/world.png", "./res/world_collisions.png");
@@ -135,6 +145,8 @@ int main(int argc, char const *argv[])
         {
             // get mouse pos
             al_get_mouse_state(&mouse_state);
+            fb_mouse_x = ((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width;
+            fb_mouse_y = ((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height;
 
             // update
             if (tick_timer(player_anim_timer, fps))
@@ -210,20 +222,65 @@ int main(int argc, char const *argv[])
 
                 if (player->rect.x == 96 && player->rect.y == 72)
                 {
+                    rod_x = player->rect.x + 3;
+                    rod_y = player->rect.y + 3;
+                    rod_len_x = rod_x - fb_mouse_x;
+                    rod_len_y = rod_y - fb_mouse_y;
+                    rod_len = sqrt(pow(rod_len_x, 2) + pow(rod_len_y, 2));
+                    rod_angle_start = asin((sin(90) / rod_len) * rod_len_y);
+                    rod_angle_end = rod_angle_start + M_PI;
+                    
                     al_draw_bitmap(rod_bitmap, player->rect.x, player->rect.y, 0);
                     al_draw_line(
-                        player->rect.x + 3, player->rect.y + 3,
-                        ((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width,
-                        ((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height,
+                        rod_x, rod_y,
+                        fb_mouse_x,
+                        fb_mouse_y,
                         al_map_rgb(255, 255, 255), 0
                     );
                     al_draw_arc(
-                        player->rect.x + 3 + fabsf(((player->rect.x + 3) - (((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width))), // center x
-                        player->rect.y + 3 + fabsf(((player->rect.y + 3) - (((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height))), // center y
-                        5, // radius
-                        0, // start rads
+                        rod_x - (rod_len_x / 2),
+                        rod_y - (rod_len_y / 2),
+                        abs(rod_len) / 2, // radius
+                        rod_angle_start, // start rads
                         M_PI, // end rads
-                        al_map_rgb(255, 0, 0), 2);
+                        al_map_rgb(255, 0, 0), 1
+                    );
+                    al_draw_line(
+                        rod_x,
+                        fb_mouse_y,
+                        fb_mouse_x,
+                        fb_mouse_y,
+                        al_map_rgb(0, 255, 255),
+                        1
+                    );
+                    al_draw_line(
+                        rod_x,
+                        rod_y,
+                        rod_x,
+                        fb_mouse_y,
+                        al_map_rgb(0, 255, 255),
+                        1
+                    );
+                    al_draw_line(
+                        (rod_x - (rod_len_x / 2)) - (rod_len / 2),
+                        rod_y - (rod_len_y / 2),
+                        
+                        (rod_x - (rod_len_x / 2)) + (rod_len / 2),
+                        rod_y - (rod_len_y / 2),
+
+                        al_map_rgb(0, 0, 255),
+                        1
+                    );
+                    al_draw_line(
+                        rod_x - (rod_len_x / 2),
+                        (rod_y - (rod_len_y / 2)) - (rod_len / 2),
+                        
+                        rod_x - (rod_len_x / 2),
+                        (rod_y - (rod_len_y / 2)) + (rod_len / 2),
+
+                        al_map_rgb(0, 255, 0),
+                        1
+                    );
                 }
             }
             else
