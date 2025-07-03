@@ -5,5 +5,5 @@ linux:
 	./main
 
 win:
-	clang -g $(FILES) -o main -lallegro -lallegro_image -lallegro_primitives
+	clang -g $(FILES) -o main -IC:/usr-headers -lallegro -lallegro_image -lallegro_primitives
 	./main.exe

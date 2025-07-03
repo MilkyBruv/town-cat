@@ -5,6 +5,9 @@
         "xiosbase": "c",
         "world.h": "c",
         "string.h": "c",
-        "entity.h": "c"
+        "entity.h": "c",
+        "usrtypes.h": "c",
+        "allegro_primitives.h": "c",
+        "stdlib.h": "c"
     }
 }

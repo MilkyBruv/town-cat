@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-ttimer_t* create_timer(double wait, timer_type_t type)
+ttimer_t* create_timer(d64 wait, timer_type_t type)
 {
     ttimer_t* timer = malloc(sizeof(ttimer_t));
     timer->wait = wait;
@@ -18,7 +18,7 @@ void start_timer(ttimer_t* timer)
     timer->elapsed = 0.0;
 }
 
-bool tick_timer(ttimer_t* timer, double delta)
+b32 tick_timer(ttimer_t* timer, d64 delta)
 {
     if (!timer) { return false; } // If timer is null
     if (timer->type == NO_REPEAT && timer->done) { return false; }

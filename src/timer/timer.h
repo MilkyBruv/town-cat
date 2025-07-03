@@ -1,10 +1,9 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
+#include <usrtypes.h>
 
 typedef enum timer_type
 {
@@ -13,14 +12,14 @@ typedef enum timer_type
 
 typedef struct timer
 {
-    double elapsed, wait;
+    d64 elapsed, wait;
     timer_type_t type;
-    bool done;
+    b32 done;
 } ttimer_t;
 
-ttimer_t* create_timer(double wait, timer_type_t type);
+ttimer_t* create_timer(d64 wait, timer_type_t type);
 void start_timer(ttimer_t* timer);
-bool tick_timer(ttimer_t* timer, double delta);
+b32 tick_timer(ttimer_t* timer, d64 delta);
 void stop_timer(ttimer_t* timer);
 void kill_timer(ttimer_t* timer);
 

@@ -6,7 +6,7 @@
 typedef struct
 {
     rect_t rect;
-    uint8_t cx; // center c
+    u8 cx; // center c
     char* text;
     ALLEGRO_BITMAP* bitmap;
 } text_t;
@@ -15,7 +15,7 @@ static const char* char_ref = "abcdefghijklmnopqrstuvwxyz1234567890!?$ "; // 40 
 static ALLEGRO_BITMAP* char_bitmaps[128] = {NULL};
 
 void init_text(ALLEGRO_BITMAP* text_bitmap);
-void draw_text(char* text, uint8_t cx, uint8_t y);
+void draw_text(char* text, u8 cx, u8 y);
 void destroy_text();
 
 #endif

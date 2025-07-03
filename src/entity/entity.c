@@ -1,9 +1,8 @@
-#include "./entity.h"
 #include "entity.h"
 
 #include <stdio.h>
 
-bool hits_rect(rect_t a, rect_t b)
+b32 hits_rect(rect_t a, rect_t b)
 {
     if (a.x == b.x && a.y == b.y)
     {
@@ -12,7 +11,7 @@ bool hits_rect(rect_t a, rect_t b)
     return false;
 }
 
-bool is_rect_in_range(rect_t a, rect_t b)
+b32 is_rect_in_range(rect_t a, rect_t b)
 {
     if ((a.x == b.x - 8 || a.x == b.x || a.x == b.x + 8)
     && ((a.y == b.y - 8 || a.y == b.y || a.y == b.y + 8)))
@@ -27,11 +26,11 @@ void animate(animation_t* anim)
     anim->current_frame = anim->current_frame == anim->total_frames - 1 ? 0 : anim->current_frame + 1;
 }
 
-animation_t create_animation(ALLEGRO_BITMAP* bitmaps[], uint8_t total_frames)
+animation_t create_animation(ALLEGRO_BITMAP* bitmaps[], u8 total_frames)
 {
     animation_t anim;
     anim.bitmaps = malloc(total_frames * sizeof(ALLEGRO_BITMAP*));
-    for (uint8_t i = 0; i < total_frames; i++) { anim.bitmaps[i] = bitmaps[i]; }
+    for (u8 i = 0; i < total_frames; i++) { anim.bitmaps[i] = bitmaps[i]; }
     anim.total_frames = total_frames;
     anim.current_frame = 0;
 
@@ -45,7 +44,7 @@ ALLEGRO_BITMAP *get_current_animation_frame(animation_t anim)
 
 void destroy_animation(animation_t* anim)
 {
-    for (uint8_t i = 0; i < anim->total_frames; i++)
+    for (u8 i = 0; i < anim->total_frames; i++)
     {
         al_destroy_bitmap(anim->bitmaps[i]);
     }

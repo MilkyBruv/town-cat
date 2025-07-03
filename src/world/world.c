@@ -11,7 +11,7 @@ world_t create_world(world_id_t id, const char* map, const char* collision_map)
     // and add to home_world_t.bounds for each RED pixel
     ALLEGRO_BITMAP* col_map = al_load_bitmap(collision_map);
 
-    uint8_t total_bounds = 1;
+    u8 total_bounds = 1;
     for (size_t y = 0; y < al_get_bitmap_height(col_map); y += 8)
     {
         for (size_t x = 0; x < al_get_bitmap_width(col_map); x += 8)
@@ -25,7 +25,7 @@ world_t create_world(world_id_t id, const char* map, const char* collision_map)
     world.bounds = malloc(total_bounds * sizeof(rect_t));
     world.total_bounds = total_bounds;
 
-    uint8_t bounds_index = 0;
+    u8 bounds_index = 0;
     for (size_t y = 0; y < al_get_bitmap_height(col_map); y += 8)
     {
         for (size_t x = 0; x < al_get_bitmap_width(col_map); x += 8)

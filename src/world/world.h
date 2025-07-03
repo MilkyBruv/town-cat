@@ -16,7 +16,7 @@ typedef struct world
     world_id_t id;
     rect_t* bounds;
     ALLEGRO_BITMAP* bitmap;
-    uint8_t total_bounds;
+    u8 total_bounds;
 } world_t;
 
 world_t create_world(world_id_t id, const char* map, const char* collision_map);

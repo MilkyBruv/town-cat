@@ -5,17 +5,17 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
-#include "./../macros.h"
+#include <usrtypes.h>
 
 typedef struct rect
 {
-    int16_t x, y, width, height;
+    s16 x, y, width, height;
 } rect_t;
 
 typedef struct animation
 {
     ALLEGRO_BITMAP** bitmaps;
-    uint8_t current_frame, total_frames;
+    u8 current_frame, total_frames;
 } animation_t;
 
 typedef struct smoke
@@ -42,10 +42,10 @@ typedef struct rod
     ALLEGRO_BITMAP* bitmap;
 } rod_t;
 
-bool hits_rect(rect_t a, rect_t b);
-bool is_rect_in_range(rect_t a, rect_t b);
+b32 hits_rect(rect_t a, rect_t b);
+b32 is_rect_in_range(rect_t a, rect_t b);
 void animate(animation_t* anim);
-animation_t create_animation(ALLEGRO_BITMAP* bitmaps[], uint8_t total_frames);
+animation_t create_animation(ALLEGRO_BITMAP* bitmaps[], u8 total_frames);
 ALLEGRO_BITMAP* get_current_animation_frame(animation_t anim);
 void destroy_animation(animation_t* anim);
 

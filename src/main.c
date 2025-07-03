@@ -5,7 +5,6 @@
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
 #include <usrtypes.h>
-#include "./macros.h"
 #include "./entity/entity.h"
 #include "./timer/timer.h"
 #include "./world/world.h"
@@ -41,9 +40,11 @@ int main(int argc, char const *argv[])
     const u8 fb_width = 160;
     const u8 fb_height = 160;
     ALLEGRO_BITMAP* fb = al_create_bitmap(fb_width, fb_height);
-    float fb_scale = 1.0f;
+    f32 fb_scale = 1.0f;
     u16 fb_scaled_width = 160;
     u16 fb_scaled_height = 160;
+    u16 fb_x = 0;
+    u16 fb_y = 0;
     u8 fb_mouse_x = 0;
     u8 fb_mouse_y = 0;
 
@@ -57,7 +58,7 @@ int main(int argc, char const *argv[])
     ALLEGRO_BITMAP* player_bitmaps[] = {al_create_sub_bitmap(player_bitmap, 0, 0, 8, 8),
         al_create_sub_bitmap(player_bitmap, 0, 8, 8, 8)};
     player->anim = create_animation(player_bitmaps, 2);
-    bool up = true, down = true, left = true, right = true;
+    b32 up = true, down = true, left = true, right = true;
     ttimer_t* player_anim_timer = create_timer(0.3, REPEAT);
     start_timer(player_anim_timer);
     ALLEGRO_BITMAP* rod_bitmap = al_load_bitmap("./res/rod.png");
@@ -73,7 +74,7 @@ int main(int argc, char const *argv[])
     world_t main_world = create_world(MAIN, "./res/world.png", "./res/world_collisions.png");
     world_t market_world = create_world(MARKET, "./res/market.png", "./res/market_collisions.png");
     world_t worlds[2] = {main_world, market_world};
-    uint8_t current_world = 0;
+    u8 current_world = 0;
     printf("%d\n", current_world);
 
     // Smoke animation
@@ -113,8 +114,8 @@ int main(int argc, char const *argv[])
     start_timer(text_timer);
 
     al_start_timer(timer);
-    bool redraw = false;
-    bool running = true;
+    b32 redraw = false;
+    b32 running = true;
     
     while (running)
     {
@@ -145,8 +146,8 @@ int main(int argc, char const *argv[])
         {
             // get mouse pos
             al_get_mouse_state(&mouse_state);
-            fb_mouse_x = ((float) mouse_state.x / (float) al_get_display_width(display)) * fb_width;
-            fb_mouse_y = ((float) mouse_state.y / (float) al_get_display_height(display)) * fb_height;
+            fb_mouse_x = (mouse_state.x - fb_x) / fb_scale;
+            fb_mouse_y = (mouse_state.y - fb_y) / fb_scale;
 
             // update
             if (tick_timer(player_anim_timer, fps))
@@ -179,7 +180,7 @@ int main(int argc, char const *argv[])
             }
 
             up = true; down = true; left = true; right = true;
-            for (uint8_t i = 0; i < worlds[current_world].total_bounds; i++)
+            for (u8 i = 0; i < worlds[current_world].total_bounds; i++)
             {
                 if (!is_rect_in_range(player->rect, worlds[current_world].bounds[i])) { continue; }
                 if (hits_rect((rect_t) {player->rect.x, player->rect.y - 8, player->rect.width, player->rect.height}, worlds[current_world].bounds[i]))
@@ -228,7 +229,6 @@ int main(int argc, char const *argv[])
                     rod_len_y = rod_y - fb_mouse_y;
                     rod_len = sqrt(pow(rod_len_x, 2) + pow(rod_len_y, 2));
                     rod_angle_start = asin((sin(90) / rod_len) * rod_len_y);
-                    rod_angle_end = rod_angle_start + M_PI;
                     
                     al_draw_bitmap(rod_bitmap, player->rect.x, player->rect.y, 0);
                     al_draw_line(
@@ -237,13 +237,15 @@ int main(int argc, char const *argv[])
                         fb_mouse_y,
                         al_map_rgb(255, 255, 255), 0
                     );
-                    al_draw_arc(
-                        rod_x - (rod_len_x / 2),
-                        rod_y - (rod_len_y / 2),
-                        abs(rod_len) / 2, // radius
+                    al_draw_elliptical_arc(
+                        rod_x - (rod_len_x / 2), // centre x
+                        rod_y - (rod_len_y / 2), // centre y
+                        abs(rod_len) / 2, // radius x
+                        abs(rod_len) / 5, // radius y
                         rod_angle_start, // start rads
-                        M_PI, // end rads
-                        al_map_rgb(255, 0, 0), 1
+                        M_PI, // delta rads
+                        al_map_rgb(255, 0, 0), // col
+                        2 // thicc
                     );
                     al_draw_line(
                         rod_x,
@@ -294,16 +296,16 @@ int main(int argc, char const *argv[])
             al_set_target_bitmap(al_get_backbuffer(display));
             al_clear_to_color(al_map_rgb(0, 0, 0));
             // al_use_shader(shader);
-            al_set_shader_float("time", (float) al_get_timer_count(timer) / 60.0f);
-            fb_scale = (float) min(
-                (float) ((float) al_get_display_width(display) / (float) fb_width),
-                (float) ((float) al_get_display_height(display) / (float) fb_height)
+            al_set_shader_float("time", (f32) al_get_timer_count(timer) / 60.0f);
+            fb_scale = (f32) min(
+                (f32) ((f32) al_get_display_width(display) / (f32) fb_width),
+                (f32) ((f32) al_get_display_height(display) / (f32) fb_height)
             );
             fb_scaled_width = fb_width * fb_scale;
             fb_scaled_height = fb_height * fb_scale;
-            al_draw_scaled_bitmap(fb, 0, 0, fb_width, fb_height, 
-                (al_get_display_width(display) / 2) - (fb_scaled_width / 2),
-                (al_get_display_height(display) / 2) - (fb_scaled_height / 2),
+            fb_x = (al_get_display_width(display) / 2) - (fb_scaled_width / 2);
+            fb_y = (al_get_display_height(display) / 2) - (fb_scaled_height / 2);
+            al_draw_scaled_bitmap(fb, 0, 0, fb_width, fb_height, fb_x, fb_y,
                 fb_scaled_width, fb_scaled_height, 0);
                 
             al_use_shader(NULL);
