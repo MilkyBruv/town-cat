@@ -14,9 +14,11 @@ typedef enum world_id
 typedef struct world
 {
     world_id_t id;
-    rect_t* bounds;
+    rect_t* solid_bounds;
+    rect_t* water_bounds;
     ALLEGRO_BITMAP* bitmap;
-    u8 total_bounds;
+    u8 total_solid_bounds;
+    u8 total_water_bounds;
 } world_t;
 
 world_t create_world(world_id_t id, const char* map, const char* collision_map);

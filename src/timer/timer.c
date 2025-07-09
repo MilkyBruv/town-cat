@@ -37,7 +37,7 @@ b32 tick_timer(ttimer_t* timer, d64 delta)
         return true;
     }
 
-    return timer->done;
+    return false;
 }
 
 void stop_timer(ttimer_t* timer)
