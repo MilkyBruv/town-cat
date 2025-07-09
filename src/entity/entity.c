@@ -21,7 +21,7 @@ b32 is_rect_in_range(rect_t a, rect_t b)
     return false;
 }
 
-void animate(animation_t* anim)
+void update_animation(animation_t* anim)
 {
     anim->current_frame = anim->current_frame == anim->total_frames - 1 ? 0 : anim->current_frame + 1;
 }

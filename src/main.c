@@ -138,19 +138,19 @@ int main(int argc, char const *argv[])
             // update
             if (tick_timer(player_anim_timer, fps))
             {
-                animate(&player->anim);
+                update_animation(&player->anim);
             }
 
             if (tick_timer(water_timer, fps))
             {
-                animate(&water.anim);
+                update_animation(&water.anim);
             }
 
             if (current_world == MAIN)
             {
                 if (tick_timer(smoke_timer, fps))
                 {
-                    animate(&smoke.anim);
+                    update_animation(&smoke.anim);
                 }
 
                 if (player->rect.x == 152)
