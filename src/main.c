@@ -226,23 +226,24 @@ int main(int argc, char const *argv[])
             }
             else
             {
-                if (player->rect.x == 40 && player->rect.y == 56)
-                {
-                    draw_text("hello", 43, 27);
-                }
-
                 al_draw_bitmap(get_current_animation_frame(water.anim), 48, 48, 0);
                 al_draw_bitmap(worlds[current_world].bitmap, 0, 0, 0);
                 al_draw_bitmap(get_current_animation_frame(player->anim), player->rect.x, player->rect.y, 0);
+                
+                if (player->rect.x == 40 && player->rect.y == 56)
+                {
+                    draw_text("hello", 43, 27, BLUE);
+                }
             }
             
             disable_framebuffer_drawing(display);
             al_clear_to_color(al_map_rgb(0, 0, 0));
+
             enable_shader();
             al_set_shader_float("time", (f32) al_get_timer_count(timer) / 60.0f);
             scale_and_draw_framebuffer(display);
-                
             disable_shader();
+
             al_flip_display();
             redraw = false;
         }

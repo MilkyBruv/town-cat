@@ -13,17 +13,17 @@ void init_framebuffer()
     fb->mouse_y = 0;
 }
 
+framebuffer_t* get_framebuffer()
+{
+    return fb;
+}
+
 void init_shaders()
 {
     shader = al_create_shader(ALLEGRO_SHADER_GLSL);
     al_attach_shader_source_file(shader, ALLEGRO_VERTEX_SHADER, "./res/shader/vertex.glsl");
     al_attach_shader_source_file(shader, ALLEGRO_PIXEL_SHADER, "./res/shader/fragment.glsl");
     al_build_shader(shader);
-}
-
-framebuffer_t* get_framebuffer()
-{
-    return fb;
 }
 
 void init_text()
@@ -36,11 +36,18 @@ void init_text()
     }
 }
 
+void init_colors()
+{
+    BLACK = al_map_rgb(0, 0, 0);
+    BLUE = al_map_rgb(0, 0, 255);
+}
+
 void init_gfx()
 {
     init_framebuffer();
     init_shaders();
     init_text();
+    init_colors();
 }
 
 void update_framebuffer_mouse_pos(ALLEGRO_MOUSE_STATE mouse_state)
@@ -83,12 +90,16 @@ void disable_shader()
     al_use_shader(NULL);
 }
 
-void draw_text(char* text, u8 cx, u8 y)
+void draw_text(char* text, u16 cx, u16 y, ALLEGRO_COLOR bg)
 {
-    u8 width = strlen(text);
+    u16 width = strlen(text);
+    u16 x = cx - ((width * 8) / 2);
+
+    al_draw_filled_rectangle(x, y, x + (width * 8), y + 8, bg);
+
     for (size_t i = 0; i < width; i++)
     {
-        al_draw_bitmap(char_bitmaps[(u8) text[i]], (cx - ((width * 8) / 2)) + (i * 8), y, 0);
+        al_draw_bitmap(char_bitmaps[(u8) text[i]], x + (i * 8), y, 0);
     }
 }
 
