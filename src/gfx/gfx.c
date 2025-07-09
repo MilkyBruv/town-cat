@@ -21,6 +21,11 @@ void init_shaders()
     al_build_shader(shader);
 }
 
+framebuffer_t* get_framebuffer()
+{
+    return fb;
+}
+
 void init_text()
 {
     text_bitmap = al_load_bitmap("./res/text.png");
@@ -42,7 +47,6 @@ void update_framebuffer_mouse_pos(ALLEGRO_MOUSE_STATE mouse_state)
 {
     fb->mouse_x = (mouse_state.x - fb->x) / fb->scale;
     fb->mouse_y = (mouse_state.y - fb->y) / fb->scale;
-    printf("%d,%d", fb->mouse_x, fb->mouse_y);
 }
 
 void scale_and_draw_framebuffer(ALLEGRO_DISPLAY* display)

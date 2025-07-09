@@ -218,8 +218,8 @@ int main(int argc, char const *argv[])
                     al_draw_bitmap(rod_bitmap, player->rect.x, player->rect.y, 0);
                     al_draw_line(
                         rod.rect.x, rod.rect.y,
-                        fb->mouse_x,
-                        fb->mouse_y,
+                        get_framebuffer()->mouse_x,
+                        get_framebuffer()->mouse_y,
                         al_map_rgb(255, 255, 255), 0
                     );
                 }

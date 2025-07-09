@@ -26,6 +26,7 @@ static ALLEGRO_BITMAP* char_bitmaps[128] = {NULL};
 void init_gfx();
 void init_framebuffer();
 void init_shaders();
+framebuffer_t* get_framebuffer();
 void update_framebuffer_mouse_pos(ALLEGRO_MOUSE_STATE mouse_state);
 void scale_and_draw_framebuffer(ALLEGRO_DISPLAY* display);
 void enable_framebuffer_drawing();
